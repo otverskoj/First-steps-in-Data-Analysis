@@ -36,6 +36,6 @@ class LinearRegressor():
     def __get_addition_feature(self, X):
         return np.hstack((X, np.ones((X.shape[0], 1), dtype=int)))
 
-    def mse_score(self, X_test, y_test):
+    def rmse_score(self, X_test, y_test):
         y_pred = self.predict(X_test)
-        return np.mean((y_pred - y_test) ** 2)
+        return np.sqrt(np.mean((y_pred - y_test) ** 2))
