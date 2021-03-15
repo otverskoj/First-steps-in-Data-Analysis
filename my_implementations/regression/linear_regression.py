@@ -3,7 +3,7 @@ import numpy as np
 
 class LinearRegressor():
 
-    def __init__(self, etha=0.01, n_iter=200, tol=1e-3):
+    def __init__(self, etha=0.01, n_iter=1000, tol=1e-4):
         self.etha = etha
         self.n_iter = n_iter
         self.tol = tol

@@ -2,7 +2,7 @@ import numpy as np
 
 
 class ElasticNetRegressor:
-    def __init__(self, alpha=1.0, l1_ratio=0.5, etha=0.01, n_iter=500, tol=0.0001):
+    def __init__(self, alpha=1.0, l1_ratio=0.5, etha=0.01, n_iter=1000, tol=1e-4):
         self.alpha = alpha
         self.l1_ratio = l1_ratio
         self.etha = etha
@@ -35,4 +35,4 @@ class ElasticNetRegressor:
 
     def rmse_score(self, X_test, y_test):
         y_pred = self.predict(X_test)
-        return np.sqrt(np.mean((y_pred - y_test) ** 2))
+        return np.sqrt(np.mean((y_pred - y_test)** 2))

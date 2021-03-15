@@ -1,11 +1,12 @@
 from preprocessing import get_preprocessed_classification_dataset
 from linear_regression import LinearRegressor
 from elastic_net_regression import ElasticNetRegressor
+from decision_tree_regression import DecisionTreeRegressor
 
 
 X_train, X_test, y_train, y_test = get_preprocessed_classification_dataset()
 
-estimators = [LinearRegressor(), ElasticNetRegressor()]
+estimators = [LinearRegressor(), ElasticNetRegressor(), DecisionTreeRegressor()]
 rmse_scores = []
 
 for estimator in estimators:
