@@ -3,9 +3,10 @@ from layers import Layer, InputLayer
 
 
 class MultilayerPerceptron:
-    def __init__(self, learning_rate, max_epochs_num, layers_params):
+    def __init__(self, learning_rate, max_epochs_num, epoch_subsample_size, layers_params):
         self.learning_rate = learning_rate
         self.max_epochs_num = max_epochs_num
+        self.epoch_subsample_size = epoch_subsample_size
         self.layers_params = self._parse_layers_params(layers_params)
         self.layers = None
 
@@ -15,15 +16,32 @@ class MultilayerPerceptron:
     def fit(self, X_train, y_train):
         X_train = self._reshape_data(X_train)
         y_train = self._reshape_labels(y_train)
-        for sample_idx in range(X_train.shape[0]):
-            self._forward_propagation(X_train[sample_idx])
-            self._back_propagation(y_train[sample_idx])
+
+        epoch = 0
+        while epoch < self.max_epochs_num:
+            epoch_x_train, epoch_y_train = self._get_epoch_sample(X_train, y_train,
+                                                        self.epoch_subsample_size)
+
+            for sample_idx in range(self.epoch_subsample_size):
+                self._forward_propagation(epoch_x_train[sample_idx])
+                self._back_propagation(epoch_y_train[sample_idx], epoch_x_train[sample_idx].shape[0])
+
+            X_train, y_train = self._shuffle_sample(X_train, y_train)
+
+            epoch += 1
+
 
     def _reshape_data(self, data):
         return data.reshape((1, data.shape[0])) if len(data.shape) == 1 else data
 
     def _reshape_labels(self, labels):
         return labels.reshape((labels.shape[0], 1)) if len(labels.shape) == 1 else labels
+
+    def _get_epoch_sample(self, data, labels, size):
+        rng = np.random.default_rng()
+        indices = rng.choice(data.shape[0], size=size, replace=False)
+        epoch_data, epoch_labels = data[indices], labels[indices]
+        return epoch_data, epoch_labels
 
     def _forward_propagation(self, x):
         if self.layers is None:
@@ -49,7 +67,7 @@ class MultilayerPerceptron:
                             act_func, inputs.shape[0])
             self.layers.append(layer)
 
-    def _back_propagation(self, y):
+    def _back_propagation(self, y, sample_size):
         self.layers[-1].deltas = self.layers[-1].act_func_values - y
         for idx in range(len(self.layers) - 2, -1, -1):
             layer, next_layer = self.layers[idx], self.layers[idx + 1]
@@ -64,9 +82,15 @@ class MultilayerPerceptron:
             prev_layer_act_func_values = prev_layer.act_func_values
             self.layers[idx].weights -= self.learning_rate * \
                 layer.deltas * prev_layer_act_func_values.reshape(
-                    (prev_layer.neurons_number, 1))
-            self.layers[idx].biases -= self.learning_rate * layer.deltas
+                    (prev_layer.neurons_number, 1)) / sample_size
+            self.layers[idx].biases -= self.learning_rate * layer.deltas / sample_size
 
+    def _shuffle_sample(self, data, labels):
+        smp = np.hstack((data, labels))
+        np.random.shuffle(smp)
+        data, labels = smp[:,:-1], smp[:, -1].reshape((labels.shape[0], 1))
+        return data, labels
+    
     def predict(self, X_test):
         X_test = self._reshape_data(X_test)
         predictions = []
@@ -86,4 +110,4 @@ class MultilayerPerceptron:
     def score(self, X_test, y_test):
         y_test = self._reshape_labels(y_test)
         y_pred = self.predict(X_test)
-        return np.mean((y_pred - y_test) ** 2)
+        return 1 - np.mean((y_pred - y_test) ** 2)
