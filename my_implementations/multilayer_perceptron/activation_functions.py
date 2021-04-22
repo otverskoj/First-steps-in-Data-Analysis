@@ -16,7 +16,9 @@ class ActivationFunction:
 
     @staticmethod
     def rectified_linear_unit(x):
-        return np.max(0, x)
+        x_rect = np.array(x)
+        x_rect[x_rect <= 0] = 0
+        return x_rect 
 
 
 class ActivationFunctionDerivative:

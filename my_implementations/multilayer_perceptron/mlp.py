@@ -3,10 +3,10 @@ from layers import Layer, InputLayer
 
 
 class MultilayerPerceptron:
-    def __init__(self, learning_rate, max_epochs_num, epoch_subsample_size, layers_params):
+    def __init__(self, learning_rate, max_epochs_num, batch_size, layers_params):
         self.learning_rate = learning_rate
         self.max_epochs_num = max_epochs_num
-        self.epoch_subsample_size = epoch_subsample_size
+        self.batch_size = batch_size
         self.layers_params = self._parse_layers_params(layers_params)
         self.layers = None
 
@@ -19,12 +19,14 @@ class MultilayerPerceptron:
 
         epoch = 0
         while epoch < self.max_epochs_num:
-            epoch_x_train, epoch_y_train = self._get_epoch_sample(X_train, y_train,
-                                                        self.epoch_subsample_size)
+            epoch_x_train, epoch_y_train = self._get_epoch_sample(X_train,
+                                                                  y_train,
+                                                                  self.batch_size)
 
-            for sample_idx in range(self.epoch_subsample_size):
+            for sample_idx in range(self.batch_size):
                 self._forward_propagation(epoch_x_train[sample_idx])
-                self._back_propagation(epoch_y_train[sample_idx], epoch_x_train[sample_idx].shape[0])
+                self._back_propagation(epoch_y_train[sample_idx],
+                                       epoch_x_train[sample_idx].shape[0])
 
             X_train, y_train = self._shuffle_sample(X_train, y_train)
 
@@ -88,7 +90,10 @@ class MultilayerPerceptron:
     def _shuffle_sample(self, data, labels):
         smp = np.hstack((data, labels))
         np.random.shuffle(smp)
-        data, labels = smp[:,:-1], smp[:, -1].reshape((labels.shape[0], 1))
+        data_inidices = np.arange(smp.shape[1] - labels.shape[1])
+        labels_indices = np.arange(-labels.shape[1], 0)
+        # data, labels = smp[:,:-1], smp[:, -1].reshape((labels.shape[0], 1))
+        data, labels = smp[:, data_inidices], smp[:, labels_indices].reshape((labels.shape))
         return data, labels
     
     def predict(self, X_test):
