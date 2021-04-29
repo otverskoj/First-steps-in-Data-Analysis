@@ -1,5 +1,5 @@
 import numpy as np
-from layers import Layer, InputLayer
+from . layers import Layer, InputLayer
 
 
 class MultilayerPerceptron:
