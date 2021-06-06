@@ -137,4 +137,11 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-test*.py
+# Huge datasets for CNNs
+datasets/transfer_learning/
+
+# IDE files
+.idea/
+
+# Test files
+*test*
