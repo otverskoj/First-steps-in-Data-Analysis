@@ -139,3 +139,9 @@ cython_debug/
 
 # Huge datasets for CNNs
 datasets/transfer_learning/
+
+# IDE files
+.idea/
+
+# Test files
+*test*
